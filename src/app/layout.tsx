@@ -1,15 +1,11 @@
-import "@/utils/styles/globals.css";
-import { Viewport } from "next";
+import "@/utils/globals.css";
+import { Viewport, Metadata } from "next";
 import clsx from "clsx";
-import { Metadata } from "next";
 
 import { Providers } from "./providers";
 
-import { fontSans } from "@/utils/fonts";
-import { Navbar } from "@/components/header/navbar";
-import { SidebarRoot } from "@/components/header/sidebarRoot";
-import { getUserCookie } from "@/utils/helpers/cookie";
-import { getDeployEnvironment } from "@/utils/env";
+import { Navbar, SidebarRoot } from "@/components/header";
+import { getUserCookie, getDeployEnvironment, fontSans } from "@/utils";
 
 export const metadata: Metadata = {
   title: {
@@ -60,9 +56,6 @@ export default async function Layout({
                 {children}
               </main>
             </div>
-            {/* <footer className="bg-red-600 text-white text-center py-2 text-sm">
-              <span className="uppercase text-sm font-semibold">Versión de pruebas</span>
-            </footer> */}
           </div>
         </Providers>
       </body>

@@ -1,35 +1,35 @@
-## Descripción
+# Next.js & HeroUI Template
 
-[Next] Plantilla para crear nuevos proyectos frontend con next.
+This is a template for creating applications using Next.js 15 (app directory) and HeroUI (v3).
+
+## TECNOLOGÍAS USADAS
+
+- [Next.js 15](https://nextjs.org/docs/getting-started)
+- [HeroUI v3](https://heroui.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Tailwind Variants](https://tailwind-variants.org)
+- [TypeScript](https://www.typescriptlang.org/)
+- [next-themes](https://github.com/pacocoursey/next-themes)
+
 
 ## Clonar el repositorio y agregarle un nombre nuevo del nuevo proyecto
 
 ```bash
-git clone https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/template-interface.git Nombre-Interface
+git clone https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/template-interface-v3.git Nombre-Interface
 ```
 
-## Inicializar proyecto
+### INSTALAR DEPENDENCIAS
 
 ```bash
-# Entrar al repositorio clonado con el nuevo nombre del proyecto
-cd nombre-frontend
-
-# Elimina el origen remoto actual,
-git remote remove origin
-
-# Crear el archivo .env en base al .env.example
-cp .env.example .env
-
-# Instalar las dependencias
 pnpm install
-
-# Correr proyecto en modo desarrollo
-pnpm dev
-
-# Para enlazar a un nuevo repositorio
-git remote add origin https://github.com/tu-usuario/{nombre_nuevo-next}.git
-git add .
-git commit -m "Inicialización del nuevo proyecto"
-git branch -M main
-git push -u origin main
 ```
+
+### CORRER EL SERVIDOR DE PRUEBAS
+
+```bash
+pnpm dev
+```
+
+## License
+
+Licensed under the [MIT license](https://github.com/heroui-inc/next-app-template/blob/main/LICENSE).
