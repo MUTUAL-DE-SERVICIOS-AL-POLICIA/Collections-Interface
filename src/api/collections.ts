@@ -3,11 +3,9 @@
 import { ResponseData } from "@/utils/interfaces";
 import { apiClient } from "@/services";
 
-export const getForCreatingSale = async (
-  personUuid: string,
-): Promise<ResponseData> => {
+export const getAllCollections = async (): Promise<ResponseData> => {
   try {
-    const response = await apiClient.GET(`sales/${personUuid}/forCreatingSale`);
+    const response = await apiClient.GET(`collections/transactions/findAll`);
     const data = await response.json();
 
     if (!response.ok) {
@@ -23,6 +21,7 @@ export const getForCreatingSale = async (
       message: data.message,
       data: data.data,
     };
+
   } catch (error: any) {
     return {
       error: true,

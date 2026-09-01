@@ -38,6 +38,9 @@ export {
   LogoutIcon,
   SalesIcon,
   ImportIcon,
+  ReportIcon,
+  PdfIcon,
+  ExcelIcon,
 } from "./icons";
 
 // export { ButtonEdit } from "./buttonEdit";
