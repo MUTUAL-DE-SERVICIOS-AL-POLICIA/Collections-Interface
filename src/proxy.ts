@@ -15,7 +15,7 @@ export const proxy = async () => {
     }
 
     return NextResponse.next();
-  } catch (e) {
+  } catch {
     return NextResponse.redirect(url);
   }
 };
