@@ -21,7 +21,6 @@ export const getAllCollections = async (): Promise<ResponseData> => {
       message: data.message,
       data: data.data,
     };
-
   } catch (error: any) {
     return {
       error: true,

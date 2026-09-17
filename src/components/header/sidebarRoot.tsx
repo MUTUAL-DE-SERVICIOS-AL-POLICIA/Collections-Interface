@@ -3,7 +3,12 @@
 import { Button, Tooltip } from "@heroui/react";
 import { useRouter, usePathname } from "next/navigation";
 
-import { HomeIcon, CollapseTrueIcon, CollapseFalseIcon, ImportIcon, ReportIcon } from "@/components";
+import {
+  HomeIcon,
+  CollapseTrueIcon,
+  CollapseFalseIcon,
+  ImportIcon,
+} from "@/components";
 import { useSidebar } from "@/app/providers";
 
 export const SidebarRoot = () => {
@@ -15,7 +20,7 @@ export const SidebarRoot = () => {
   const menuItems = [
     { label: "Inicio", href: "/", icon: HomeIcon },
     { label: "Importaciones", href: "/imports", icon: ImportIcon },
-    { label: "Reportes", href: "/reports", icon: ReportIcon }
+    // { label: "Reportes", href: "/reports", icon: ReportIcon }
   ];
 
   return (

@@ -34,7 +34,10 @@ export abstract class APIConnection {
     return requestConfig;
   }
 
-  protected async handleRequest(endpoint: string, requestConfig: RequestInit): Promise<any> {
+  protected async handleRequest(
+    endpoint: string,
+    requestConfig: RequestInit,
+  ): Promise<any> {
     const cookie = await getCookie("msp");
 
     if (cookie) {
@@ -44,7 +47,8 @@ export abstract class APIConnection {
       if (requestConfig.headers instanceof Headers) {
         requestConfig.headers.append("Authorization", `Bearer ${cookie}`);
       } else {
-        (requestConfig.headers as Record<string, string>)["Authorization"] = `Bearer ${cookie}`;
+        (requestConfig.headers as Record<string, string>)["Authorization"] =
+          `Bearer ${cookie}`;
       }
     }
     const url = this.buildUrl(endpoint);
@@ -55,7 +59,9 @@ export abstract class APIConnection {
       if (contentType.includes("application/json")) {
         const errorData = await response.json();
 
-        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! Status: ${response.status}`,
+        );
       }
     }
 

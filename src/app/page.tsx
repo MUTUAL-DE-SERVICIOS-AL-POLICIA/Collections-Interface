@@ -2,26 +2,26 @@
 
 import { Pagination, Table } from "@heroui/react";
 import { useState, useMemo, useEffect } from "react";
+
 import { getAllCollections } from "@/api";
 
 const columns = [
-  {id: "paymentDate", name: "Fecha de transacción"},
-  {id: "titularName", name: "Nombre del titular"},
-  {id: "payerName", name: "Pagado por"},
-  {id: "description", name: "Descripción"},
-  {id: "origin", name: "Herramienta de origen"},
-  {id: "accountNumber", name: "Cuenta Destino"},
-  {id: "paymentType", name: "Tipo de Pago"},
-  {id: "receptionistUser", name: "Usuario"},
-  {id: "total", name: "Total"},
-  {id: "state", name: "Estado"},
+  { id: "paymentDate", name: "Fecha de transacción" },
+  { id: "titularName", name: "Nombre del titular" },
+  { id: "payerName", name: "Pagado por" },
+  { id: "description", name: "Descripción" },
+  { id: "origin", name: "Herramienta de origen" },
+  { id: "accountNumber", name: "Cuenta Destino" },
+  { id: "paymentType", name: "Tipo de Pago" },
+  { id: "receptionistUser", name: "Usuario" },
+  { id: "total", name: "Total" },
+  { id: "state", name: "Estado" },
 ];
 
 const ROWS_PER_PAGE = 10;
 
 export default function Home() {
-
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [allCollections, setAllCollections] = useState([]);
 
   const getCollections = async () => {
@@ -39,9 +39,10 @@ export default function Home() {
 
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(allCollections.length / ROWS_PER_PAGE);
-  const pages = Array.from({length: totalPages}, (_, i) => i + 1);
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const paginatedItems = useMemo(() => {
     const start = (page - 1) * ROWS_PER_PAGE;
+
     return allCollections.slice(start, start + ROWS_PER_PAGE);
   }, [page, allCollections]);
   const start = (page - 1) * ROWS_PER_PAGE + 1;
@@ -55,17 +56,26 @@ export default function Home() {
     <section className="flex flex-col items-center justify-center gap-4 p-4 py-8 md:py-10">
       <Table>
         <Table.ScrollContainer>
-          <Table.Content aria-label="Table with pagination" className="min-w-150">
+          <Table.Content
+            aria-label="Table with pagination"
+            className="min-w-150"
+          >
             <Table.Header columns={columns}>
               {(column) => (
-                <Table.Column isRowHeader={column.id === "paymentDate"}>{column.name}</Table.Column>
+                <Table.Column isRowHeader={column.id === "paymentDate"}>
+                  {column.name}
+                </Table.Column>
               )}
             </Table.Header>
             <Table.Body items={paginatedItems}>
               {(user) => (
                 <Table.Row>
                   <Table.Collection items={columns}>
-                    {(column) => <Table.Cell>{user[column.id as keyof typeof user]}</Table.Cell>}
+                    {(column) => (
+                      <Table.Cell>
+                        {user[column.id as keyof typeof user]}
+                      </Table.Cell>
+                    )}
                   </Table.Collection>
                 </Table.Row>
               )}
@@ -89,7 +99,10 @@ export default function Home() {
               </Pagination.Item>
               {pages.map((p) => (
                 <Pagination.Item key={p}>
-                  <Pagination.Link isActive={p === page} onPress={() => setPage(p)}>
+                  <Pagination.Link
+                    isActive={p === page}
+                    onPress={() => setPage(p)}
+                  >
                     {p}
                   </Pagination.Link>
                 </Pagination.Item>

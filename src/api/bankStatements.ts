@@ -21,7 +21,6 @@ export const findAllBankStatements = async (): Promise<ResponseData> => {
       message: data.message,
       data: data.data,
     };
-
   } catch (error: any) {
     return {
       error: true,
@@ -29,12 +28,17 @@ export const findAllBankStatements = async (): Promise<ResponseData> => {
       data: error.message,
     };
   }
-}
+};
 
-export const importBankStatements = async (body: any): Promise<ResponseData> => {
+export const importBankStatements = async (
+  body: any,
+): Promise<ResponseData> => {
   try {
-
-    const response = await apiClient.POST(`collections/bankStatements/import`, body, true);
+    const response = await apiClient.POST(
+      `collections/bankStatements/import`,
+      body,
+      true,
+    );
     const data = await response.json();
 
     if (!response.ok) {
@@ -49,7 +53,6 @@ export const importBankStatements = async (body: any): Promise<ResponseData> => 
       error: data.error,
       message: data.message,
     };
-
   } catch (error: any) {
     return {
       error: true,
