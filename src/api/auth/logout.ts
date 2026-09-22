@@ -11,9 +11,11 @@ export async function logout() {
     const cookieStore = await cookies();
 
     cookieStore.delete("msp");
+    cookieStore.delete("user");
+    cookieStore.delete("access");
   } catch (error: any) {
     return NextResponse.json(
-      { error: true, message: "Error al cerrar sesión: " + error.message },
+      { error: true, message: error.message || "Error al cerrar sesión" },
       { status: 500 },
     );
   }
