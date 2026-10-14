@@ -14,6 +14,7 @@ import {
 import { useState, useMemo, useEffect } from "react";
 
 import { importBankStatements, findAllBankStatements } from "@/api";
+import { usePermissions } from "@/utils/context/PermissionContext";
 
 interface BankStatement {
   date: string;
@@ -38,6 +39,9 @@ const columns = [
 const ROWS_PER_PAGE = 14;
 
 export default function BankStatements() {
+  const { can } = usePermissions();
+  const canRead = can("bank_statements", "read");
+  const canWrite = can("bank_statements", "write");
   const [loading, setLoading] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
 
@@ -70,6 +74,11 @@ export default function BankStatements() {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!canWrite) {
+      toast.danger("No tiene permiso para importar estados bancarios");
+      return;
+    }
 
     const form = e.currentTarget;
 
@@ -106,7 +115,7 @@ export default function BankStatements() {
 
       toast.success(message);
 
-      await getBankStatements();
+      if (canRead) await getBankStatements();
 
       form.reset();
     } catch {
@@ -135,119 +144,130 @@ export default function BankStatements() {
   const end = Math.min(page * ROWS_PER_PAGE, allBankStatements.length);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    getBankStatements();
-  }, []);
+    if (canRead) getBankStatements();
+  }, [canRead]);
+
+  if (!canRead && !canWrite) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-muted">
+        No tiene permisos para gestionar estados bancarios.
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="flex-1 min-w-62.5 max-w-75 2xl:max-w-100 h-full">
-        <Card className="relative flex flex-col border-2 h-full w-full min-h-0 gap-2">
-          <Form onSubmit={onSubmit}>
-            <Label>Subir Archivo</Label>
+      {canWrite && (
+        <div className="flex-1 min-w-62.5 max-w-75 2xl:max-w-100 h-full">
+          <Card className="relative flex flex-col border-2 h-full w-full min-h-0 gap-2">
+            <Form onSubmit={onSubmit}>
+              <Label>Subir Archivo</Label>
 
-            <Surface className="flex w-full items-center justify-center rounded-xl bg-surface">
-              <Input
-                accept=".csv"
-                className="w-full bg-blue-100"
-                name="csvFile"
-                type="file"
-              />
-            </Surface>
+              <Surface className="flex w-full items-center justify-center rounded-xl bg-surface">
+                <Input
+                  accept=".csv"
+                  className="w-full bg-blue-100"
+                  name="csvFile"
+                  type="file"
+                />
+              </Surface>
 
-            <Button
-              className="w-full mt-2"
-              isPending={loadingSave}
-              type="submit"
-              variant="secondary"
-            >
-              Importar
-            </Button>
-          </Form>
-        </Card>
-      </div>
+              <Button
+                className="w-full mt-2"
+                isPending={loadingSave}
+                type="submit"
+                variant="secondary"
+              >
+                Importar
+              </Button>
+            </Form>
+          </Card>
+        </div>
+      )}
 
       {/* TABLA */}
-      <Card className="card-no-outline flex-1 border-2 p-3 min-w-162.5 h-full overflow-y-auto">
-        <Table>
-          <Table.ScrollContainer>
-            <Table.Content
-              aria-label="Tabla de estados bancarios"
-              className="min-w-150"
-            >
-              <Table.Header columns={columns}>
-                {(column) => (
-                  <Table.Column isRowHeader={column.id === "date"}>
-                    {column.name}
-                  </Table.Column>
-                )}
-              </Table.Header>
-
-              <Table.Body
-                items={paginatedItems}
-                renderEmptyState={() =>
-                  loading ? "Cargando..." : "No existen registros"
-                }
+      {canRead && (
+        <Card className="card-no-outline flex-1 border-2 p-3 min-w-162.5 h-full overflow-y-auto">
+          <Table>
+            <Table.ScrollContainer>
+              <Table.Content
+                aria-label="Tabla de estados bancarios"
+                className="min-w-150"
               >
-                {(statement) => (
-                  <Table.Row>
-                    <Table.Collection items={columns}>
-                      {(column) => (
-                        <Table.Cell>
-                          {statement[column.id as keyof BankStatement]}
-                        </Table.Cell>
-                      )}
-                    </Table.Collection>
-                  </Table.Row>
-                )}
-              </Table.Body>
-            </Table.Content>
-          </Table.ScrollContainer>
-          <Table.Footer>
-            <Pagination size="sm">
-              <Pagination.Summary>
-                {start} to {end} of {allBankStatements.length} results
-              </Pagination.Summary>
-              <Pagination.Content>
-                <Pagination.Item>
-                  <Pagination.Previous
-                    isDisabled={page === 1}
-                    onPress={() =>
-                      setPage((currentPage) => Math.max(1, currentPage - 1))
-                    }
-                  >
-                    <Pagination.PreviousIcon />
-                    Prev
-                  </Pagination.Previous>
-                </Pagination.Item>
-                {pages.map((pageNumber) => (
-                  <Pagination.Item key={pageNumber}>
-                    <Pagination.Link
-                      isActive={pageNumber === page}
-                      onPress={() => setPage(pageNumber)}
+                <Table.Header columns={columns}>
+                  {(column) => (
+                    <Table.Column isRowHeader={column.id === "date"}>
+                      {column.name}
+                    </Table.Column>
+                  )}
+                </Table.Header>
+
+                <Table.Body
+                  items={paginatedItems}
+                  renderEmptyState={() =>
+                    loading ? "Cargando..." : "No existen registros"
+                  }
+                >
+                  {(statement) => (
+                    <Table.Row>
+                      <Table.Collection items={columns}>
+                        {(column) => (
+                          <Table.Cell>
+                            {statement[column.id as keyof BankStatement]}
+                          </Table.Cell>
+                        )}
+                      </Table.Collection>
+                    </Table.Row>
+                  )}
+                </Table.Body>
+              </Table.Content>
+            </Table.ScrollContainer>
+            <Table.Footer>
+              <Pagination size="sm">
+                <Pagination.Summary>
+                  {start} to {end} of {allBankStatements.length} results
+                </Pagination.Summary>
+                <Pagination.Content>
+                  <Pagination.Item>
+                    <Pagination.Previous
+                      isDisabled={page === 1}
+                      onPress={() =>
+                        setPage((currentPage) => Math.max(1, currentPage - 1))
+                      }
                     >
-                      {pageNumber}
-                    </Pagination.Link>
+                      <Pagination.PreviousIcon />
+                      Prev
+                    </Pagination.Previous>
                   </Pagination.Item>
-                ))}
-                <Pagination.Item>
-                  <Pagination.Next
-                    isDisabled={page === totalPages}
-                    onPress={() =>
-                      setPage((currentPage) =>
-                        Math.min(totalPages, currentPage + 1),
-                      )
-                    }
-                  >
-                    Next
-                    <Pagination.NextIcon />
-                  </Pagination.Next>
-                </Pagination.Item>
-              </Pagination.Content>
-            </Pagination>
-          </Table.Footer>
-        </Table>
-      </Card>
+                  {pages.map((pageNumber) => (
+                    <Pagination.Item key={pageNumber}>
+                      <Pagination.Link
+                        isActive={pageNumber === page}
+                        onPress={() => setPage(pageNumber)}
+                      >
+                        {pageNumber}
+                      </Pagination.Link>
+                    </Pagination.Item>
+                  ))}
+                  <Pagination.Item>
+                    <Pagination.Next
+                      isDisabled={page === totalPages}
+                      onPress={() =>
+                        setPage((currentPage) =>
+                          Math.min(totalPages, currentPage + 1),
+                        )
+                      }
+                    >
+                      Next
+                      <Pagination.NextIcon />
+                    </Pagination.Next>
+                  </Pagination.Item>
+                </Pagination.Content>
+              </Pagination>
+            </Table.Footer>
+          </Table>
+        </Card>
+      )}
     </>
   );
 }

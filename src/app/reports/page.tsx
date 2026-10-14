@@ -12,9 +12,11 @@ import {
 import { useState } from "react";
 
 import { PdfIcon, ExcelIcon } from "@/components";
-import { apiClient } from "@/services";
+import { usePermissions } from "@/utils/context/PermissionContext";
 
 export default function Persons() {
+  const { can } = usePermissions();
+  const canDownload = can("reports", "download");
   const dateNow = new Date().toISOString().split("T")[0];
 
   const [dateFrom, setDateFrom] = useState(dateNow);
@@ -22,40 +24,50 @@ export default function Persons() {
   const [, setLoading] = useState(false);
 
   const downloadReportAllSales = async (format: string) => {
+    if (!canDownload) {
+      toast.danger("No tiene permiso para descargar reportes");
+      return;
+    }
     try {
       setLoading(true);
-      const response = await apiClient.GET(
-        `sales/reports/allSales?dateFrom=${dateFrom}&dateTo=${dateTo}&format=${format}`,
-      );
+      const query = new URLSearchParams({ dateFrom, dateTo, format });
+      const response = await fetch(`/api/reports?${query}`, {
+        cache: "no-store",
+      });
 
       if (!response.ok) {
-        toast.danger("No se pudo generar el PDF");
+        toast.danger("No se pudo generar el reporte");
 
         return;
       }
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
 
-      const iframe = document.createElement("iframe");
-
-      iframe.style.position = "fixed";
-      iframe.style.width = "1px";
-      iframe.style.height = "1px";
-      iframe.style.opacity = "0";
-      iframe.style.pointerEvents = "none";
-      iframe.src = url;
-      iframe.onload = () => {
-        const win = iframe.contentWindow;
-
-        if (!win) return;
-        win.focus();
-        setTimeout(() => {
-          win.print();
-        }, 500);
-      };
-      document.body.appendChild(iframe);
+      if (format === "csv") {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "reporte-ventas.csv";
+        link.click();
+        URL.revokeObjectURL(url);
+      } else {
+        const iframe = document.createElement("iframe");
+        iframe.style.position = "fixed";
+        iframe.style.width = "1px";
+        iframe.style.height = "1px";
+        iframe.style.opacity = "0";
+        iframe.style.pointerEvents = "none";
+        iframe.src = url;
+        iframe.onload = () => {
+          iframe.contentWindow?.print();
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            iframe.remove();
+          }, 1000);
+        };
+        document.body.appendChild(iframe);
+      }
     } catch {
-      toast.danger("No se pudo generar el PDF");
+      toast.danger("No se pudo generar el reporte");
 
       return;
     } finally {
@@ -95,6 +107,7 @@ export default function Persons() {
           <div className="flex w-1/2 flex-col gap-1 overflow-y-auto overflow-x-hidden">
             <Button
               variant="tertiary"
+              isDisabled={!canDownload}
               onPress={() => {
                 downloadReportAllSales("pdf");
               }}
@@ -106,16 +119,17 @@ export default function Persons() {
         </div>
         <Separator orientation="vertical" />
         <div className="flex w-1/2 flex-col h-full">
-          <div className="font-bold">Formatos en EXCEL</div>
+          <div className="font-bold">Formato en CSV</div>
           <div className="flex flex-col h-4/5 rounded-lg">
             <Button
               variant="tertiary"
+              isDisabled={!canDownload}
               onPress={() => {
-                downloadReportAllSales("xlsx");
+                downloadReportAllSales("csv");
               }}
             >
               <ExcelIcon />
-              Reporte de ventas
+              Reporte de ventas (CSV)
             </Button>
           </div>
         </div>
