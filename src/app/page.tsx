@@ -4,6 +4,7 @@ import { Pagination, Table } from "@heroui/react";
 import { useState, useMemo, useEffect } from "react";
 
 import { getAllCollections } from "@/api";
+import { usePermissions } from "@/utils/context/PermissionContext";
 
 const columns = [
   { id: "paymentDate", name: "Fecha de transacción" },
@@ -21,6 +22,8 @@ const columns = [
 const ROWS_PER_PAGE = 10;
 
 export default function Home() {
+  const { can } = usePermissions();
+  const canReadTransactions = can("transactions", "read");
   const [, setLoading] = useState(false);
   const [allCollections, setAllCollections] = useState([]);
 
@@ -49,8 +52,16 @@ export default function Home() {
   const end = Math.min(page * ROWS_PER_PAGE, allCollections.length);
 
   useEffect(() => {
-    getCollections();
-  }, []);
+    if (canReadTransactions) getCollections();
+  }, [canReadTransactions]);
+
+  if (!canReadTransactions) {
+    return (
+      <section className="flex h-full items-center justify-center p-6 text-muted">
+        No tiene permiso para consultar transacciones.
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-col items-center justify-center gap-4 p-4 py-8 md:py-10">
